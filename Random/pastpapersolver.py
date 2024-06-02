@@ -89,6 +89,19 @@ def main():
             
                 
                 question = input("Please enter your question (Doesn't need to be full, just consecutive EXACT words): ")
+                if question == "d":
+                        pdf_link = driver.find_element(By.XPATH,"/html/body/div[2]/div/center[3]/h3/a")
+                        pdf_link.click()
+                        sleep(1)
+                        driver.switch_to.window(driver.window_handles[1])
+                        print("Downloading Mark Scheme...")
+                        file_name = download_file(driver.current_url)
+                        if file_name:
+                            startfile(file_name)
+                            continue
+                if question == "l":
+                        print(driver.current_url)
+                        continue
                 link = get_link(subject,question)
                 # link = get_link()
                 driver.get(link)
@@ -99,20 +112,13 @@ def main():
                 )
 
                 answer = driver.find_element(By.XPATH,"/html/body/div[2]/div/pre")
+                print("------------------------------------------------------------------------------------------------------------------------")
+                print("------------------------------------------------------------------------------------------------------------------------")
+                print("------------------------------------------------------------------------------------------------------------------------")
                 print(answer.text)
                 print("------------------------------------------------------------------------------------------------------------------------")
                 print("------------------------------------------------------------------------------------------------------------------------")
                 print("------------------------------------------------------------------------------------------------------------------------")
-                # download_choice = input("Would you like to download the mark scheme? (Y/N): ").lower()
-                # if download_choice == 'y':
-                #     pdf_link = driver.find_element(By.XPATH,"/html/body/div[2]/div/center[3]/h3/a")
-                #     pdf_link.click()
-                #     sleep(1)
-                #     driver.switch_to.window(driver.window_handles[1])
-                #     print("Downloading Mark Scheme...")
-                #     file_name = download_file(driver.current_url)
-                #     if file_name:
-                #         startfile(file_name)
         except Exception as e:
             print(f"Failed due to: {e}")
             print("No search results found, Please try again...")
