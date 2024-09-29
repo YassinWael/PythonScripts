@@ -55,7 +55,7 @@ def focus():
     toaster.show_toast("Hello There!", "Welcome Back", duration=2)
     send_message("Laptop Unlocked!")
 
-
+focus()
 
 if __name__ == "__main__":
     move_mouse_thread = Thread(target=move_mouse, daemon=True)

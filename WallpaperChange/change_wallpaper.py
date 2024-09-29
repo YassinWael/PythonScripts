@@ -12,10 +12,12 @@ google = environ.get("google")
 
 url = "https://api.pexels.com/v1/search"
 
-key = "WwnG024sYuPqZ8sh2aUQBjEH14pQD5xBhIeOVvgXQ1t5Sos4oxLoasV1"
+key = "Mif8qLZbhi91nUxyd04BizIjwiRlOWmfZRpOleFwltCgN1V3VWe68plc"
 headers = {
-    "Authorization":key
+    "Authorization":key,
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
 }
+#DO NOT REMOVE THE USER AGENT, OR A 403 ERROR WILL BE RETURNED.
 queries = ["night", "landscape","magnifent", "nature", "city", "animals", "sea", "space", "mountains", "forest", "architecture", "food", "weather", "transportation","history", "skyline", "sunset", "beach", "waterfall", "galaxy", "clouds", "desert", "aurora", "countryside"]
 
 input("""Hello, and welcome to Wallpaper Changer 1.0,
@@ -76,18 +78,23 @@ def get_next_page(request_data):
         print("No more images lol (Skill issue)")
         exit()
 
-def download_photo(url,file_name=rf"C:\Users\{user_name}\wallpaper.png"):
+def download_photo(url, file_name=rf"C:\Users\{user_name}\wallpaper.png"):
     try:
-        image_data = get(url).content
-        with open(file_name,"wb") as file:
-            file.write(image_data)
-            print(f"Downloaded image and saved to {file_name}")
+        response = get(url, stream=True,headers=headers)
+        response.raise_for_status()  # Ensure the request was successful
+
+        with open(file_name, 'wb') as file:
+            for chunk in response.iter_content(1024):
+                file.write(chunk)
+
+        print(f"Downloaded image and saved to {file_name}")
+
     except Exception as e:
-        print(f"Image downloading failed due to : {e}")
+        print(f"Image downloading failed due to: {e}")
 
 
 def get_photo(url=url,next_page=0):
-   
+    
     global req # to get next page when needed
     if bool(next_page): 
         print(f"retrieved photo from next page.")
@@ -98,8 +105,8 @@ def get_photo(url=url,next_page=0):
     "orientation":"landscape"
     }  #defined it inside the function, so that the query gets randomized
         print(f"retrieved photo from {params['query']}")
+        ic(url)
         req = get(url,headers=headers,params=params).json()
-
     return req.get("photos")[0]["src"]["original"]
 
 def get_photo_google(query=choice(queries)):
