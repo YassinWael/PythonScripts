@@ -18,7 +18,7 @@ headers = {
     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
 }
 #DO NOT REMOVE THE USER AGENT, OR A 403 ERROR WILL BE RETURNED.
-queries = ["night", "landscape","magnifent", "nature", "city", "animals", "sea", "space", "mountains", "forest", "architecture", "food", "weather", "transportation","history", "skyline", "sunset", "beach", "waterfall", "galaxy", "clouds", "desert", "aurora", "countryside"]
+queries = ["night", "landscape","magnifent", "nature", "city", "animals", "sea", "space", "mountains", "forest", "architecture", "food", "weather", "transportation","history", "skyline", "sunset", "beach", "waterfall", "galaxy", "clouds", "desert", "countryside"]
 
 input("""Hello, and welcome to Wallpaper Changer 1.0,
    1. Y Sets wallpaper and closes the script
@@ -101,7 +101,7 @@ def get_photo(url=url,next_page=0):
         req = get(url,headers=headers).json()
     else:
         params = {
-    "query":f"4k cinematic {choice(queries)}",
+    "query":f"{choice(queries)}",
     "orientation":"landscape"
     }  #defined it inside the function, so that the query gets randomized
         print(f"retrieved photo from {params['query']}")
@@ -130,12 +130,13 @@ def set_wallpaper(image=rf"C:\Users\{user_name}\wallpaper.png"):
 
 image_url = get_photo()
 download_photo(image_url)
-sleep(1) #js for the file to be saved
+sleep(1) #just for the file to be saved
 set_wallpaper()
 
 while True:
     user_response = input("Is it good? Y/N/Q ").lower()
     if  user_response == "n" or user_response == "no":
+        print("Getting another photo from the same keyword...")
         next_page = get_next_page(req)
         new_image = get_photo(url=next_page,next_page=1) #next_page 1 so no query type is printed, since its the same one. just the next page
         download_photo(new_image)
