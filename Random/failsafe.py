@@ -4,7 +4,7 @@ from os import environ
 from pprint import pprint
 from PIL import Image
 from json import loads
-from pyautogui import screenshot
+from pyautogui import screenshot,position,Point
 from time import sleep
 import winsound
 import pyttsx3
@@ -13,9 +13,10 @@ load_dotenv()
 genai.configure(api_key=environ.get("genai_api_key"))
 print("Google Generative AI is configured with the provided API key.")
 
+
 engine = pyttsx3.init()
 model = genai.GenerativeModel(model_name="gemini-2.0-flash")
-
+mouse_pos = Point(0,0)  # template
 
 def take_screenshot_and_check_nsfw(image_path=""):
     """
@@ -47,29 +48,34 @@ def take_screenshot_and_check_nsfw(image_path=""):
 
 
 while True:
-    nsfw_status = take_screenshot_and_check_nsfw()
-    print(f"Explanation: {nsfw_status['Explanation']}")
-
-    if nsfw_status["NSFW"]:
-        print("NSFW content detected!")
+    if mouse_pos != position():  # Check if the mouse has moved
+        nsfw_status = take_screenshot_and_check_nsfw()
         print(f"Explanation: {nsfw_status['Explanation']}")
-        winsound.PlaySound("alert.wav", winsound.SND_ALIAS)
-        engine.say("NSFW content detected! You have 10 seconds to close the app before a shutdown is initiated.")
-        engine.runAndWait()
-        sleep(10)
-
-        nsfw_status_repeat = take_screenshot_and_check_nsfw()
-        if nsfw_status_repeat["NSFW"]:
-            print("NSFW content still detected after 10 seconds. Shutting down the system.")
-            engine.say("Shutting down the system due to NSFW content.")
+        mouse_pos = position() # the current mouse position, will be used to determine if the user is active, if not active we can skip taking a screenshot
+        if nsfw_status["NSFW"]:
+            print("NSFW content detected!")
+            print(f"Explanation: {nsfw_status['Explanation']}")
+            winsound.PlaySound("alert.wav", winsound.SND_ALIAS)
+            engine.say("NSFW content detected! You have 10 seconds to close the app before a shutdown is initiated.")
             engine.runAndWait()
-            system("shutdown /s /t 10")
+            sleep(10)
+
+            nsfw_status_repeat = take_screenshot_and_check_nsfw()
+            if nsfw_status_repeat["NSFW"]:
+                print("NSFW content still detected after 10 seconds. Shutting down the system.")
+                engine.say("Shutting down the system due to NSFW content.")
+                engine.runAndWait()
+                system("shutdown /s /t 10")
+            else:
+                engine.say("Content is now safe after 10 seconds.")
+                engine.runAndWait()
+
+
         else:
-            engine.say("Content is now safe after 10 seconds.")
-            engine.runAndWait()
-
-
-    else:
-        print("Content is safe.")
-    print("Taking another screenshot in 15 minutes...")
-    sleep(800)  # Wait for 15 minutes before taking another screenshot
+            print("Content is safe.")
+        sleep(800)  # Wait for 15 minutes before taking another screenshot
+        
+        print("Will take another screenshot in 15 minutes...")
+    else: #mouse hasn't move
+        print("Mouse hasn't moved, skipping screenshot.")
+        sleep(800)
